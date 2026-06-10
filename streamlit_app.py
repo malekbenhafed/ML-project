@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 # Load dataset
-df = pd.read_csv("Steel_Plates_Faults.csv")
+df = pd.read_csv("https://raw.githubusercontent.com/malekbenhafed/ML-project/master/Steel_Plates_Faults.csv")
 df.columns = df.columns.str.strip()
 
 label_cols = ['Pastry', 'Z_Scratch', 'K_Scratch', 'Stains', 'Dirtiness', 'Bumps', 'Other_Faults']
