@@ -15,7 +15,7 @@ from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 
 # Load dataset
-df = pd.read_csv("https://raw.githubusercontent.com/malekbenhafed/project/master/Steel_Plates_Faults.csv")
+df = pd.read_csv("https://raw.githubusercontent.com/malekbenhafed/my-project/master/Steel_Plates_Faults.csv")
 df.columns = df.columns.str.strip()
 
 label_cols = ['Pastry', 'Z_Scratch', 'K_Scratch', 'Stains', 'Dirtiness', 'Bumps', 'Other_Faults']
