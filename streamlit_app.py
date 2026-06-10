@@ -20,7 +20,10 @@ st.write("A machine learning web app that detects faults in steel plates.")
 # ==========================================
 # LOAD DATASET
 # ==========================================
+import os
 
+st.write("Current files:")
+st.write(os.listdir())
 df = pd.read_csv("Steel_Plates_Faults.csv")
 df.columns = df.columns.str.strip()
 
