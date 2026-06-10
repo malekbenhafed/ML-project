@@ -96,7 +96,7 @@ for label, model in rf_models.items():
 
 st.table(pd.DataFrame(results.items(), columns=["Fault", "Prediction"]))
 
-# =========================
+# ========================
 # CHART
 # =========================
 mlp = MLPClassifier(hidden_layer_sizes=(100, 140), max_iter=1000, random_state=42)
