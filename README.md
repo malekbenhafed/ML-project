@@ -1,13 +1,11 @@
-# 📦 Streamlit App Starter Kit 
-```
-⬆️ (Replace above with your app's name)
-```
-
+#🔩 Steel Plate Fault Detection App
+ 
+A 🤖 machine learning web app that detects faults in steel plates. Users can adjust ⚙️ input feature values using interactive sliders, and the app instantly predicts which type of fault is present (🥐 Pastry, �scratch Z_Scratch, K_Scratch, 🟤 Stains, 🫧 Dirtiness, 🔵 Bumps, or ⚠️ Other_Faults) using a trained 🌲 Random Forest model built on the 📊 UCI Steel Plates Faults dataset.
 Description of the app ...
 
 ## Demo App
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://app-starter-kit.streamlit.app/)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ML-project.streamlit.app/)
 
 ## GitHub Codespaces
 
