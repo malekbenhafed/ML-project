@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -20,9 +22,6 @@ st.write("A machine learning web app that detects faults in steel plates.")
 # =========================
 df = pd.read_csv("Steel_Plates_Faults.csv")
 df.columns = df.columns.str.strip()
-
-st.write("Dataset loaded successfully!")
-st.write(df.head())
 
 # =========================
 # LABELS
@@ -100,12 +99,18 @@ st.table(pd.DataFrame(results.items(), columns=["Fault", "Prediction"]))
 # =========================
 # CHART
 # =========================
+mlp = MLPClassifier(hidden_layer_sizes=(100, 140), max_iter=1000, random_state=42)
+mlp.fit(X_train, y_train)
+mlp_acc = accuracy_score(y_test, mlp.predict(X_test))
+
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_train, y_train)
+knn_acc = accuracy_score(y_test, knn.predict(X_test))
+
 st.subheader("📈 Accuracy Chart")
-
 fig, ax = plt.subplots()
-
-ax.bar(["Random Forest"], [rf_acc])
+ax.bar(['KNN', 'MLP', 'Random Forest'], [knn_acc, mlp_acc, rf_acc], color='skyblue')
 ax.set_ylim(0, 1)
 ax.set_ylabel("Accuracy")
-
+ax.set_title("Model Comparison")
 st.pyplot(fig)
