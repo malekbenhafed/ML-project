@@ -1,4 +1,4 @@
-#🔩 Steel Plate Fault Detection App
+🔩 Steel Plate Fault Detection App
  
 A 🤖 machine learning web app that detects faults in steel plates. Users can adjust ⚙️ input feature values using interactive sliders, and the app instantly predicts which type of fault is present (🥐 Pastry, �scratch Z_Scratch, K_Scratch, 🟤 Stains, 🫧 Dirtiness, 🔵 Bumps, or ⚠️ Other_Faults) using a trained 🌲 Random Forest model built on the 📊 UCI Steel Plates Faults dataset.
 Description of the app ...
