@@ -1,23 +1,38 @@
-🔩 Steel Plate Fault Detection App
- 
-A 🤖 machine learning web app that detects faults in steel plates. Users can adjust ⚙️ input feature values using interactive sliders, and the app instantly predicts which type of fault is present (🥐 Pastry, �scratch Z_Scratch, K_Scratch, 🟤 Stains, 🫧 Dirtiness, 🔵 Bumps, or ⚠️ Other_Faults) using a trained 🌲 Random Forest model built on the 📊 UCI Steel Plates Faults dataset.
-Description of the app ...
+# 🔩 Steel Plate Fault Detection App
 
-## Demo App
+A machine learning web app that detects faults in steel plates.  
+Users adjust input feature values using interactive sliders, and the app instantly predicts the fault type:  
+**Pastry, Z_Scratch, K_Scratch, Stains, Dirtiness, Bumps, or Other_Faults**  
+using a trained **Random Forest** model built on the UCI Steel Plates Faults dataset.
+
+## 🚀 Demo App
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ML-project.streamlit.app/)
 
-## GitHub Codespaces
+## 📊 Dataset
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/app-starter-kit?quickstart=1)
+- **Source:** [UCI Machine Learning Repository – Steel Plates Faults](https://archive.ics.uci.edu/dataset/198/steel+plates+faults)
+- 1941 samples, 27 input features, 7 fault categories
+- Multi-label classification problem
 
-## Section Heading
+## 🧠 Models Used
 
-This is filler text, please replace this with text for this section.
+| Model | Notes |
+|-------|-------|
+| Random Forest | Main model used in the app |
+| KNN | Compared during training |
+| MLPClassifier | Compared during training |
 
-## Further Reading
+## ⚙️ How to Run Locally
 
-This is filler text, please replace this with a explanatory text about further relevant resources for this repo
-- Resource 1
-- Resource 2
-- Resource 3
+```bash
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+## 🛠️ Tech Stack
+
+- Python
+- Scikit-learn
+- Streamlit
+- Pandas / NumPy
