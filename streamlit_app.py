@@ -1,13 +1,12 @@
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
+from pathlib import Path
 
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+import pandas as pd
+import streamlit as st
+
+from model import LABEL_COLS, load_data, split_features_labels, train_and_evaluate
+
+DATA_PATH = Path(__file__).parent / "Steel_Plates_Faults.csv"
 
 # =========================
 # PAGE SETUP
@@ -17,55 +16,65 @@ st.set_page_config(page_title="Steel Fault Detection", layout="wide")
 st.title("🔩 Steel Plate Fault Detection App")
 st.write("A machine learning web app that detects faults in steel plates.")
 
-# =========================
-# LOAD DATA
-# =========================
-df = pd.read_csv("Steel_Plates_Faults.csv")
-df.columns = df.columns.str.strip()
 
 # =========================
-# LABELS
+# DATA AND MODELS (cached)
 # =========================
-label_cols = [
-    'Pastry', 'Z_Scratch', 'K_Scratch',
-    'Stains', 'Dirtiness', 'Bumps', 'Other_Faults'
-]
+# Streamlit re-runs this script on every slider move. Without caching, the
+# models would be retrained each time.
+@st.cache_data
+def get_data():
+    return load_data(DATA_PATH)
 
-X = df.drop(columns=label_cols)
-y = df[label_cols]
 
-# =========================
-# PREPROCESSING
-# =========================
-scaler = StandardScaler()
+@st.cache_resource
+def get_models():
+    return train_and_evaluate(get_data())
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
 
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
+df = get_data()
+X, _ = split_features_labels(df)
+
+with st.spinner("Training the models (first load only)..."):
+    models, results = get_models()
 
 # =========================
-# MODELS (SAFE VERSION)
+# MODEL COMPARISON
 # =========================
-rf_models = {}
+st.subheader("📊 Model comparison (20% held-out test set)")
 
-for label in label_cols:
-    model = RandomForestClassifier(random_state=42)
-    model.fit(X_train, y_train[label])
-    rf_models[label] = model
+summary = pd.DataFrame(
+    {
+        name: {
+            "mean_accuracy": res["mean_accuracy"],
+            "macro_f1": res["macro_f1"],
+            "exact_match": res["exact_match"],
+        }
+        for name, res in results.items()
+    }
+).T
 
-# =========================
-# ACCURACY
-# =========================
-rf_acc = sum(
-    accuracy_score(y_test[label], rf_models[label].predict(X_test))
-    for label in label_cols
-) / len(label_cols)
+col_table, col_chart = st.columns(2)
 
-st.subheader("📊 Model Accuracy")
-st.write("Random Forest Accuracy:", round(rf_acc, 4))
+with col_table:
+    st.dataframe(summary.round(3))
+    st.caption(
+        "**mean_accuracy**: accuracy of each fault, averaged over the 7 faults. "
+        "**macro_f1**: F1 of each fault, averaged; stricter on rare faults. "
+        "**exact_match**: share of plates where all 7 labels are correct. "
+        "All three models are scored the same way on the same split."
+    )
+
+with col_chart:
+    fig, ax = plt.subplots()
+    summary[["mean_accuracy", "macro_f1"]].plot.bar(ax=ax, rot=0)
+    ax.set_ylim(0, 1)
+    ax.set_ylabel("Score")
+    ax.set_title("Model comparison")
+    st.pyplot(fig)
+
+with st.expander("Per-fault scores (Random Forest)"):
+    st.dataframe(results["Random Forest"]["per_label"].round(3))
 
 # =========================
 # SIDEBAR INPUT
@@ -75,44 +84,33 @@ st.sidebar.header("⚙️ Input Features")
 input_data = {}
 
 for col in X.columns:
-    input_data[col] = st.sidebar.slider(
-        col,
-        float(df[col].min()),
-        float(df[col].max()),
-        float(df[col].mean())
-    )
+    low, high = float(df[col].min()), float(df[col].max())
+    if low == high:
+        # A slider needs min < max; a constant feature has nothing to adjust.
+        input_data[col] = low
+        st.sidebar.caption(f"{col}: constant ({low})")
+    else:
+        input_data[col] = st.sidebar.slider(col, low, high, float(df[col].mean()))
 
-input_df = pd.DataFrame([input_data])
-input_scaled = scaler.transform(input_df)
+input_df = pd.DataFrame([input_data], columns=X.columns)
 
 # =========================
 # PREDICTION
 # =========================
 st.subheader("🔍 Predictions")
 
-results = {}
+model_name = st.selectbox(
+    "Model used for the prediction", list(models), index=0
+)
+pred = models[model_name].predict(input_df)[0]
 
-for label, model in rf_models.items():
-    pred = model.predict(input_scaled)[0]
-    results[label] = "✅ Detected" if pred == 1 else "❌ Not Detected"
-
-st.table(pd.DataFrame(results.items(), columns=["Fault", "Prediction"]))
-
-# ========================
-# CHART
-# =========================
-mlp = MLPClassifier(hidden_layer_sizes=(100, 140), max_iter=1000, random_state=42)
-mlp.fit(X_train, y_train)
-mlp_acc = accuracy_score(y_test, mlp.predict(X_test))
-
-knn = KNeighborsClassifier(n_neighbors=3)
-knn.fit(X_train, y_train)
-knn_acc = accuracy_score(y_test, knn.predict(X_test))
-
-st.subheader("📈 Accuracy Chart")
-fig, ax = plt.subplots()
-ax.bar(['KNN', 'MLP', 'Random Forest'], [knn_acc, mlp_acc, rf_acc], color='skyblue')
-ax.set_ylim(0, 1)
-ax.set_ylabel("Accuracy")
-ax.set_title("Model Comparison")
-st.pyplot(fig)
+st.table(
+    pd.DataFrame(
+        {
+            "Fault": LABEL_COLS,
+            "Prediction": [
+                "✅ Detected" if p == 1 else "❌ Not detected" for p in pred
+            ],
+        }
+    )
+)
