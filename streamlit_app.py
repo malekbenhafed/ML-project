@@ -1,106 +1,21 @@
-malekbenhafed
-ML-project
-Repository navigation
-Code
-Issues
-Pull requests
-Agents
-Actions
-Projects
-Wiki
-Security and quality
-Insights
-Settings
-ML-project
-/
-streamlit_app.py
-in
-master
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
 
-Edit
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
-Preview
-Indent mode
+# =========================
+# PAGE SETUP
+# =========================
+st.set_page_config(page_title="Steel Fault Detection", layout="wide")
 
-Spaces
-Indent size
-
-4
-Line wrap mode
-
-No wrap
-Editing streamlit_app.py file contents
- 19
- 20
- 21
- 22
- 23
- 24
- 25
- 26
- 27
- 28
- 29
- 30
- 31
- 32
- 33
- 34
- 35
- 36
- 37
- 38
- 39
- 40
- 41
- 42
- 43
- 44
- 45
- 46
- 47
- 48
- 49
- 50
- 51
- 52
- 53
- 54
- 55
- 56
- 57
- 58
- 59
- 60
- 61
- 62
- 63
- 64
- 65
- 66
- 67
- 68
- 69
- 70
- 71
- 72
- 73
- 74
- 75
- 76
- 77
- 78
- 79
- 80
- 81
- 82
- 83
- 84
- 85
- 86
- 87
- 88
- 89
+st.title("🔩 Steel Plate Fault Detection App")
+st.write("A machine learning web app that detects faults in steel plates.")
 
 # =========================
 # LOAD DATA
@@ -172,5 +87,32 @@ input_scaled = scaler.transform(input_df)
 
 # =========================
 # PREDICTION
-Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
-While the code is focused, press Alt+F1 for a menu of operations.
+# =========================
+st.subheader("🔍 Predictions")
+
+results = {}
+
+for label, model in rf_models.items():
+    pred = model.predict(input_scaled)[0]
+    results[label] = "✅ Detected" if pred == 1 else "❌ Not Detected"
+
+st.table(pd.DataFrame(results.items(), columns=["Fault", "Prediction"]))
+
+# ========================
+# CHART
+# =========================
+mlp = MLPClassifier(hidden_layer_sizes=(100, 140), max_iter=1000, random_state=42)
+mlp.fit(X_train, y_train)
+mlp_acc = accuracy_score(y_test, mlp.predict(X_test))
+
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_train, y_train)
+knn_acc = accuracy_score(y_test, knn.predict(X_test))
+
+st.subheader("📈 Accuracy Chart")
+fig, ax = plt.subplots()
+ax.bar(['KNN', 'MLP', 'Random Forest'], [knn_acc, mlp_acc, rf_acc], color='skyblue')
+ax.set_ylim(0, 1)
+ax.set_ylabel("Accuracy")
+ax.set_title("Model Comparison")
+st.pyplot(fig)
